@@ -9,17 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import threading
 import time
 from contextlib import asynccontextmanager
+import json
 # Thêm cái này ngay dưới dòng app = FastAPI()
-
+with open("config.json", "r", encoding="utf-8") as f:
+    cfg = json.load(f)
 # ===== CONFIG =====
-NODES = [
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:8001",
-    "http://127.0.0.1:8002",
-    "http://127.0.0.1:8003",
-    "http://127.0.0.1:8004",
-    "http://127.0.0.1:8005",
-]
+NODES = cfg["nodes"]  # Danh sách các node trong cụm
 NODE_STATUS = {node: True for node in NODES}
 
 PORT = sys.argv[1]          # LẤY PORT TỪ CMD

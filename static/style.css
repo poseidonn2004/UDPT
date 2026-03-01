@@ -1,0 +1,125 @@
+/* Tổng thể */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 40px;
+}
+
+h1,
+h2 {
+    color: #1a73e8;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+/* Form nhập liệu */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+input {
+    padding: 10px;
+    margin: 10px 5px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 250px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #1a73e8;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #1557b0;
+}
+
+/* Vùng kết quả nhanh */
+#put-result,
+#get-result {
+    margin-top: 15px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-left: 4px solid #1a73e8;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+/* --- PHẦN LÀM ĐẸP HỆ THỐNG --- */
+#id-cua-tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.node-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    transition: transform 0.2s;
+}
+
+.node-card:hover {
+    transform: translateY(-5px);
+
+    /* Thêm bóng đổ */
+}
+
+.node-header {
+    background: #e8f0fe;
+    padding: 12px;
+    font-weight: bold;
+    font-family: monospace;
+    color: #1967d2;
+    border-bottom: 1px solid #d2e3fc;
+}
+
+.node-body {
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.data-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+.data-key {
+    color: #5f6368;
+    font-weight: 500;
+}
+
+.data-value {
+    color: #188038;
+    font-weight: bold;
+}
+
+.status-offline {
+    background: #fce8e6;
+    color: #d93025;
+    padding: 20px;
+    text-align: center;
+}

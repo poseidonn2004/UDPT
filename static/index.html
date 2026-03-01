@@ -1,62 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Distributed KV Store</title>
-  <style>
-    body {
-      font-family: Arial;
-      margin: 40px;
-    }
-    input {
-      padding: 6px;
-      margin: 5px;
-      width: 200px;
-    }
-    button {
-      padding: 6px 12px;
-      margin: 5px;
-    }
-    #put-result {
-      margin-top: 20px;
-      background: #f4f4f4;
-      padding: 10px;
-    }
-    #get-result {
-      margin-top: 20px;
-      background: #f4f4f4;
-      padding: 10px;
-    }
-    #id-cua-tbody {
-      margin-top: 20px;
-      background: #f4f4f4;
-      padding: 10px;
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>Distributed KV Store Dashboard</title>
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
 
-<h2>Distributed Key-Value Store</h2>
-<H1>Put Dữ Liệu</H1>
-<input id="put-key" placeholder="Key">
-<input id="value" placeholder="Value">
+    <div class="container">
+        <h2>Distributed Key-Value Store</h2>
+        
+        <section>
+            <h3>Put Dữ Liệu</h3>
+            <input id="put-key" placeholder="Key">
+            <input id="value" placeholder="Value">
+            <button onclick="put()">PUT</button>
+            <div id="put-result">Chưa có kết quả...</div>
+        </section>
 
-<br>
+        <section style="margin-top: 40px;">
+            <h3>Get Dữ Liệu</h3>
+            <input id="get-key" placeholder="Key">
+            <button onclick="get()">GET</button>
+            <div id="get-result">Chưa có kết quả...</div>
+        </section>
+    </div>
 
-<button onclick="put()">PUT</button>
-<div id="put-result"></div>
-<br>
-<H1>Get Dữ Liệu</H1>
-<input id="get-key" placeholder="Key">
-<br>
-<button onclick="get()">GET</button>
-
-<div id="get-result"></div>
-<h1>Bảng Dữ Liệu Của Hệ Thống</h1>
-<div id="id-cua-tbody"></div>
-<br>
-<button onclick="layDuLieuHeThong()">GET</button>
-
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Trạng Thái Toàn Hệ Thống</h3>
+            <button onclick="layDuLieuHeThong()" style="background-color: #34a853;">Làm mới dữ liệu</button>
+        </div>
+        
+        <div id="id-cua-tbody"></div>
+    </div>
 
 <script>
 const SERVER = "http://127.0.0.1:8000";
@@ -67,76 +44,78 @@ const NODES = [
     "http://127.0.0.1:8003",
     "http://127.0.0.1:8004",
     "http://127.0.0.1:8005",
-]
+];
+
+// Giữ nguyên các hàm put() và get() của bạn
 function put() {
   const key = document.getElementById("put-key").value;
   const value = document.getElementById("value").value;
-
-  fetch(`${SERVER}/put?key=${key}&value=${value}`, {
-    method: "POST"
-  })
+  fetch(`${SERVER}/put?key=${key}&value=${value}`, { method: "POST" })
   .then(r => r.json())
   .then(data => {
-    document.getElementById("put-result").innerText =
-      JSON.stringify(data, null, 2);
-  });
+    document.getElementById("put-result").innerText = "Đang cập nhật hệ thống...";
+    
+    // Đợi một chút rồi mới load lại để đảm bảo dữ liệu đã được ghi phân tán xong
+    setTimeout(() => {
+        layDuLieuHeThong();
+        document.getElementById("put-result").innerText = "Thành công & Đã cập nhật!";
+    }, 500);
+  })
+  .catch(err => {
+    console.error("Lỗi khi PUT:", err);
+    alert("Không thể kết nối tới Server! Vui lòng kiểm tra lại mạng.");
+});
 }
 
 function get() {
   const key = document.getElementById("get-key").value;
-
   fetch(`${SERVER}/get?key=${key}`)
     .then(r => r.json())
     .then(data => {
-      console.log("Dữ liệu thực tế từ Server:", data.response);
-      let value = null;
-      let source = null;
-      if (data.value !== undefined) {
-        value = data.value;
-        source = data.source;
-      }
-
-      document.getElementById("get-result").innerText =
-        value !== null
-          ? `GET OK\nKey: ${key}\nValue: ${value} \nsource: ${source}`
-          : JSON.stringify(data, null, 2);
+      let val = data.value !== undefined ? data.value : "Không tìm thấy";
+      let src = data.source || "N/A";
+      document.getElementById("get-result").innerHTML = `<b>Value:</b> ${val} | <b>Source:</b> ${src}`;
     });
 }
+
+// HÀM LẤY DỮ LIỆU ĐÃ ĐƯỢC LÀM ĐẸP (RENDER DẠNG CARD)
 async function layDuLieuHeThong() {
+    const container = document.getElementById("id-cua-tbody");
+    
     const promises = NODES.map(async (url) => {
         try {
-            // Gọi endpoint all_data của từng node
-            const res = await fetch(`${url}/all_data`, { 
-                signal: AbortSignal.timeout(1500) 
-            });
+            const res = await fetch(`${url}/all_data`, { signal: AbortSignal.timeout(1500) });
             const json = await res.json();
             
-            // Xử lý dữ liệu: Mỗi cặp Key-Value nằm trong 1 <div> để tự xuống dòng
-            let chuoiDuLieu = Object.entries(json.data)
-                .map(([key, val]) => `
-                    <div style="border-bottom: 1px solid #eee; padding: 5px 0;">
-                        <b style="color: #2c3e50;">${key}</b>: <span style="color: #27ae60;">${val}</span>
-                    </div>`)
-                .join("");
+            let htmlItems = Object.entries(json.data).map(([key, val]) => `
+                <div class="data-item">
+                    <span class="data-key">${key}</span>
+                    <span class="data-value">${val}</span>
+                </div>
+            `).join("");
+
+            if (!htmlItems) htmlItems = "<p style='color:#999; font-style:italic;'>Node trống</p>";
 
             return `
-                <tr>
-                    <td style="padding: 10px; font-weight: bold; vertical-align: top;">${url}</td>
-                    <td style="padding: 10px;">${chuoiDuLieu || "<span style='color: #999;'><i>Trống</i></span>"}</td>
-                </tr>`;
+                <div class="node-card">
+                    <div class="node-header">${url}</div>
+                    <div class="node-body">${htmlItems}</div>
+                </div>`;
         } catch (error) {
-            // Hiển thị trạng thái lỗi nếu server sập hoặc lỗi CORS
             return `
-                <tr style="background-color: #fff5f5;">
-                    <td style="padding: 10px; color: #e74c3c;">${url}</td>
-                    <td style="padding: 10px; color: #e74c3c;">⚠️ Offline (CORS hoặc Server Down)</td>
-                </tr>`;
+                <div class="node-card">
+                    <div class="node-header" style="background:#fce8e6; color:#d93025;">${url}</div>
+                    <div class="status-offline">⚠️ Offline / CORS Error</div>
+                </div>`;
         }
     });
 
-    const rows = await Promise.all(promises);
-    document.getElementById("id-cua-tbody").innerHTML = rows.join("");
+    const cards = await Promise.all(promises);
+    container.innerHTML = cards.join("");
 }
+
+// Tự động load dữ liệu khi mở trang
+window.onload = layDuLieuHeThong;
 </script>
 
 </body>
