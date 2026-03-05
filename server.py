@@ -203,6 +203,60 @@ def get(key: str):
             ).json()
         except Exception:
             return {"lỗi": "không tìm thấy key trên các node"}
+# delete key
+# ===== DELETE =====
+@app.delete("/delete")
+def delete(key: str):
+    primary = get_primary_node(key)
+    replica = get_replica_node(key)
+    replica1 = get_replica1_node(key)
+
+    # Nếu request tới node không phải primary → forward
+    if CURRENT_NODE != primary:
+        try:
+            return requests.delete(
+                f"{primary}/delete",
+                params={"key": key},
+                timeout=2
+            ).json()
+        except Exception:
+            return {"lỗi": "node primary không phản hồi"}
+
+    # XÓA PRIMARY
+    if key in store:
+        del store[key]
+
+    # XÓA REPLICA
+    try:
+        requests.delete(
+            f"{replica}/delete_local",
+            params={"key": key},
+            timeout=2
+        )
+    except:
+        pass
+
+    try:
+        requests.delete(
+            f"{replica1}/delete_local",
+            params={"key": key},
+            timeout=2
+        )
+    except:
+        pass
+
+    return {
+        "deleted_from": primary,
+        "replica": replica,
+        "replica1": replica1,
+        "key": key
+    }
+#xoa local
+@app.delete("/delete_local")
+def delete_local(key: str):
+    if key in store:
+        del store[key]
+    return {"deleted_at": CURRENT_NODE}
 @app.get("/all_data")
 def get_all_data():
     # Trả về dữ liệu local của chính Node này

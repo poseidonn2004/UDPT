@@ -24,6 +24,12 @@
             <button onclick="get()">GET</button>
             <div id="get-result">Chưa có kết quả...</div>
         </section>
+        <section style="margin-top: 40px;">
+            <h3>Delete Dữ Liệu</h3>
+            <input id="delete-key" placeholder="Key">
+            <button onclick="deleteKey()">DELETE</button>
+            <div id="delete-result">Chưa có kết quả...</div>
+        </section>
     </div>
 
     <div class="container">
@@ -75,6 +81,24 @@ function get() {
       let val = data.value !== undefined ? data.value : "Không tìm thấy";
       let src = data.source || "N/A";
       document.getElementById("get-result").innerHTML = `<b>Value:</b> ${val} | <b>Source:</b> ${src}`;
+    });
+}
+function deleteKey() {
+  const key = document.getElementById("delete-key").value;
+
+  fetch(`${SERVER}/delete?key=${key}`, { method: "DELETE" })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById("delete-result").innerText = "Đang cập nhật hệ thống...";
+
+      setTimeout(() => {
+        layDuLieuHeThong();
+        document.getElementById("delete-result").innerText = "Đã xóa key!";
+      }, 500);
+    })
+    .catch(err => {
+      console.error("Lỗi khi DELETE:", err);
+      alert("Không thể kết nối tới Server!");
     });
 }
 

@@ -2,7 +2,7 @@ Get-Process WindowsTerminal -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 1
 
 $startPort = 8000
-$numberOfNodes = 10  # Bạn muốn mở bao nhiêu node thì sửa ở đây
+$numberOfNodes = 6  # Bạn muốn mở bao nhiêu node thì sửa ở đây
 
 # Mở Tab đầu tiên
 $cmd = "wt -p `"Windows PowerShell`" -d . powershell -NoExit -Command `"python server.py $startPort`""
