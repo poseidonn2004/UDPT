@@ -25,18 +25,22 @@ pip
 Các thư viện Python:
 
 pip install fastapi uvicorn requests
-3. Cấu trúc thư mục
+### 3. Cấu trúc thư mục
+
+```
+UDPT-master
 │   config.json
 │   faststart.ps1
 │   server.py
 │   start.ps1
-│   
-├───static
-│       index.html
-│       style.css
 │
-└───__pycache__
-        server.cpython-314.pyc
+├── static
+│   ├── index.html
+│   └── style.css
+│
+└── __pycache__
+    └── server.cpython-314.pyc
+```
 4. Cấu hình hệ thống
 
 File config.json định nghĩa các node trong cụm.
